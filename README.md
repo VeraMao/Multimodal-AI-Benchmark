@@ -87,24 +87,128 @@ The repository contains work spanning several stages of the project:
 
 ```text
 Emotion-Music-ML
-├── DataSets/ # Raw and processed datasets
-   ├──Final_Datset.zip # Final dataset containing audio features and labels
-   ├── rawdataset.txt # Links to download the raw dataset: Kaggle's "Spotify Audio Features" and Last.fm "Tags", "metadata" dataset
-├── DataCollection&Pre # Scripts for data collection and preprocessing
-├── ML_Progress # Scripts for model training and evaluation
-├── spotify_secret.py # Spotify API credentials (you need to set this up using your own credentials)
-├── HPTuning_Dask/ # Hyperparameter tuning workflows using Dask
-├── HPTuning_Spark/ # Hyperparameter tuning workflows using Spark / EMR
-├── Initial_running/ # Initial setup files and early project scripts
-│   ├── requirement.txt # Python package requirements
-│   └── spotify_secret.py # Local credential file for Spotify API setup
-├── Lyris_Genius/ # Lyrics collection and lyric-based emotion classification workflows
-├── Results/ # Output files, evaluation summaries, and model results
-├── Data_Preprocessing.ipynb # Main preprocessing notebook
-├── ML_Progress.ipynb # Main notebook for machine learning experiments
-├── LLM_featureOnly_experiment.ipynb # LLM-based feature-only emotion inference experiment
-└── README.md # Project overview and documentation
+│
+├── DataSets/
+│   ├── Final_Datset.zip
+│   └── rawdataset.txt
+│
+├── DataCollection&Pre/
+│
+├── ML_Progress/
+│
+├── HPTuning_Dask/
+│
+├── HPTuning_Spark/
+│
+├── Initial_running/
+│   ├── requirement.txt
+│   └── spotify_secret.py
+│
+├── Lyris_Genius/
+│
+├── Results/
+│
+├── Data_Preprocessing.ipynb
+├── ML_Progress.ipynb
+├── LLM_featureOnly_experiment.ipynb
+│
+├── spotify_secret.py
+└── README.md
 ```
+## Folder Descriptions
+
+### DataSets/
+
+Contains both the **final processed dataset used in experiments** and references to the **raw datasets**.
+
+- `Final_Datset.zip` — Final dataset combining Spotify acoustic features with emotion labels  
+- `rawdataset.txt` — Links and descriptions for downloading raw datasets (Spotify, Last.fm)
+
+---
+
+### DataCollection&Pre/
+
+Scripts and workflows used for **data collection and preprocessing**, including dataset cleaning, merging, and preparation.
+
+---
+
+### ML_Progress/
+
+Code used for **training and evaluating machine learning models** on acoustic features.
+
+---
+
+### HPTuning_Dask/
+
+Hyperparameter tuning experiments using **Dask for parallel computation**.
+
+---
+
+### HPTuning_Spark/
+
+Hyperparameter tuning experiments using **Spark / EMR clusters**.
+
+---
+
+### Initial_running/
+
+Initial project setup files.
+
+- `requirement.txt` — Python dependencies required to run the project  
+- `spotify_secret.py` — Local Spotify API credential configuration
+
+---
+
+### Lyris_Genius/
+
+Pipeline for **lyrics collection and lyric-based emotion classification** using transformer models.
+
+---
+
+### Results/
+
+Contains **model outputs, evaluation summaries, and experiment results**.
+
+---
+
+## Key Notebooks
+
+### Data_Preprocessing.ipynb
+
+Primary notebook used to:
+
+- prepare datasets  
+- clean and merge data sources  
+- construct the final modeling dataset  
+
+---
+
+### ML_Progress.ipynb
+
+Main notebook for **training and evaluating machine learning models**.
+
+Models include:
+
+- Random Forest  
+- K-Nearest Neighbors  
+- Multi-Layer Perceptron  
+
+---
+
+### LLM_featureOnly_experiment.ipynb
+
+Experiment testing whether a **large language model can infer emotion from structured Spotify acoustic features alone**.
+
+The model receives only numeric acoustic descriptors and predicts possible emotion labels.
+
+---
+
+### spotify_secret.py
+
+Configuration file for **Spotify API credentials**.  
+
+---
+
 ## Methodology Overview
 
 ### 1. Weak Supervision Pipeline
