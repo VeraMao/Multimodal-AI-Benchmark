@@ -1,50 +1,89 @@
-# Encoding Emotion in Music via Acoustic Features  
-*A Weakly Supervised Transformer-Based Study*
+# Encoding Emotion in Music: A Multimodal AI Benchmark Across Audio, Lyrics, and Language Models  
+*A computational social science exploration of how machines infer musical emotion from sound, text, and human-generated tags.*
 
-## 📘 Description
-
-This project investigates how the acoustic properties of music relate to emotional expression by training machine learning models to predict emotion categories from Spotify audio features. Building on research in music psychology and affective computing \parencite{Huron2015, Perlovsky2010, Yang2024}, the study adopts a **weakly supervised** approach where emotion labels are inferred from Last.fm user-generated tags using a **DistilRoBERTa transformer classifier**.
-
-After filtering predictions by confidence and matching them to Spotify audio features via API, the final dataset includes **82,950 tracks** labeled across six basic emotions: *joy, sadness, anger, fear, disgust,* and *surprise*. The study compares four classifiers—**Random Forest, Logistic Regression, K-Nearest Neighbors**, and **Multi-Layer Perceptron**—using a **dynamic top-k multilabel evaluation** scheme.
-
-Rather than focusing solely on accuracy, this project emphasizes **interpretability**: How do different models leverage features like *valence*, *energy*, *loudness*, and *acousticness*? Using **SHAP values** and **permutation importance**, the analysis reveals distinct feature usage patterns and highlights how classification failures often stem from weak or contradictory signals—not random noise.
-
-Key findings show that while Random Forest achieves the best overall performance, emotions like *fear*, *disgust*, and *surprise* remain challenging due to semantic ambiguity and overlapping acoustic cues. This underscores the importance of **multilabel-aware metrics** and interpretability tools in understanding emotion recognition models.
-
-Overall, this work contributes to music emotion recognition by showing how models interpret audio features, where and why they fail, and how evaluation strategies must account for the inherent complexity of musical affect.
-
+**Final Project – MACS 37005 AI Agents for Social Science & Society**  
+**Mia Sowder, Vera Mao, and Amrita Pathak**
 
 ---
 
-## ⚙️ Requirements
+## Description
 
-This project was developed and tested in Python 3.10. The following libraries are required to run the full pipeline, from data collection to model training and evaluation:
+Music is one of the most emotionally expressive forms of human communication, but computationally identifying that emotional meaning is difficult because emotion in music does not live in a single place. It can be expressed through **acoustic structure**, **lyrical content**, and **listener interpretation**, all of which may align or diverge.
 
-```python
-# Core machine learning and evaluation
-scikit-learn==1.4.2
-pandas==2.2.2
-numpy==1.26.4
-shap==0.45.0
+This project builds a **multimodal benchmark for musical emotion classification** by comparing three different approaches:
 
-# Visualization
-matplotlib==3.8.4
-seaborn==0.13.2
-tqdm==4.66.2
+- **Audio-based machine learning models** trained on Spotify acoustic features  
+- **Lyric-based transformer classification** using Genius lyrics  
+- **LLM-based reasoning** from structured acoustic feature prompts alone  
 
-# Spotify API access
-spotipy==2.23.0
+To create labels at scale, we use a **weak supervision pipeline** based on **Last.fm user tags**, which are mapped into six core emotions:
 
-# SQLite for metadata extraction
-sqlite3 (built-in with Python)
+- joy  
+- sadness  
+- anger  
+- fear  
+- surprise  
+- disgust  
 
-# Authentication
-# You will need to create a file called `spotify_secret.py` with:
-# SPOTIPY_CLIENT_ID = 'your_client_id'
-# SPOTIPY_CLIENT_SECRET = 'your_client_secret'
-```
+By comparing these modalities, the project asks a broader computational social science question: **how do machines infer feeling from cultural data, and what changes depending on the signal they receive?**
 
-## 📁 File Structure
+---
+
+## Research Question
+
+**To what extent do acoustic features and lyrics yield consistent or divergent emotion predictions in popular music?**
+
+More specifically, this project asks:
+
+1. Can **Spotify acoustic features alone** reliably predict musical emotion?
+2. Do **lyrics** express the same emotional signals that listeners assign through tags?
+3. Can a **large language model** infer emotion from **numeric acoustic descriptors alone**, without hearing the song or reading the lyrics?
+
+---
+
+## Data Sources
+
+This project combines three major data sources:
+
+### 1. Last.fm User Tags
+Crowd-generated tags are used as a proxy for listener-perceived emotion.  
+These tags are converted into structured emotion labels using a transformer-based weak supervision pipeline.
+
+### 2. Spotify Acoustic Features
+Quantitative features such as:
+
+- danceability  
+- energy  
+- valence  
+- tempo  
+- loudness  
+- acousticness  
+- instrumentalness  
+- speechiness  
+- liveness  
+
+These features are used for supervised multilabel emotion prediction.
+
+### 3. Genius Lyrics
+Lyrics provide the textual and semantic content of songs, allowing us to compare **artist expression** with **listener interpretation**.
+
+---
+
+## Project Components
+
+The repository contains work spanning several stages of the project:
+
+- **Data preprocessing and dataset construction**
+- **Weak supervision for emotion label generation**
+- **Baseline machine learning models on acoustic features**
+- **Hyperparameter tuning using Dask and Spark**
+- **Lyric-based transformer classification**
+- **LLM feature-only inference experiment**
+- **Model evaluation and results comparison**
+
+---
+
+## File Structure
 
 ```text
 Emotion-Music-ML
@@ -54,115 +93,201 @@ Emotion-Music-ML
 ├── DataCollection&Pre # Scripts for data collection and preprocessing
 ├── ML_Progress # Scripts for model training and evaluation
 ├── spotify_secret.py # Spotify API credentials (you need to set this up using your own credentials)
-│
-├── Presentation_QMD/ # Quarto slides
-│
-├── Results/ # All results from the ML pipeline
-│ ├── albation_results.csv # Results from ablation study
-│ ├── all_model_feature_importance.csv # Feature importance for all models
-│ ├── summary_audio_feature_stats.csv # Results from all models
-│
-├── Encoding_Emotion_in_Music_Paper_Track_FinalPaper.pdf # Final paper in PDF format
-├── Requirements.txt # Python package requirements
+├── HPTuning_Dask/ # Hyperparameter tuning workflows using Dask
+├── HPTuning_Spark/ # Hyperparameter tuning workflows using Spark / EMR
+├── Initial_running/ # Initial setup files and early project scripts
+│   ├── requirement.txt # Python package requirements
+│   └── spotify_secret.py # Local credential file for Spotify API setup
+├── Lyris_Genius/ # Lyrics collection and lyric-based emotion classification workflows
+├── Results/ # Output files, evaluation summaries, and model results
+├── Data_Preprocessing.ipynb # Main preprocessing notebook
+├── ML_Progress.ipynb # Main notebook for machine learning experiments
+├── LLM_featureOnly_experiment.ipynb # LLM-based feature-only emotion inference experiment
 └── README.md # Project overview and documentation
 ```
+## Methodology Overview
+
+### 1. Weak Supervision Pipeline
+
+To generate emotion labels at scale, Last.fm tags are passed through the transformer model:
+
+`j-hartmann/emotion-english-distilroberta-base`
+
+Only predictions with confidence above **0.8** are retained, which improves precision while reducing coverage. This produces a weakly supervised multilabel dataset for downstream modeling.
+
+### 2. Audio-Based Emotion Prediction
+
+Using Spotify acoustic features, we train three multilabel classifiers:
+
+- Random Forest
+- K-Nearest Neighbors (KNN)
+- Multi-Layer Perceptron (MLP)
+
+These models predict the six core emotions from numeric song features alone.
+
+### 3. Hyperparameter Tuning
+
+We compare:
+
+- Grid Search
+- Random Search
+
+across two compute environments:
+
+- Dask
+- Spark / EMR
+
+This allows us to compare predictive performance against runtime and infrastructure cost.
+
+### 4. Lyrics Emotion Classification
+
+Lyrics scraped from Genius are processed and passed through a BERT-based emotion classifier:
+
+`bhadresh-savani/bert-base-go-emotion`
+
+Predictions are mapped into the same six-emotion taxonomy for comparison with tag-based labels.
+
+### 5. LLM Feature-Only Experiment
+
+A large language model receives only structured Spotify acoustic features and is asked to infer likely emotions for each song. This experiment tests whether an LLM can reason about affect from abstract numeric descriptors without access to lyrics or audio.
 
 ---
 
-## 📁 Raw Datasets (See Datasets/rawdataset.txt for more detailed descriptions.)
+## Results
+
+### Audio Model Results
+
+Acoustic-feature-based models performed the strongest overall in the project.
+
+**Random Forest** achieved the best overall performance:
+
+- **Micro-F1:** 0.6766
+- **Exact Match Accuracy:** 36.67%
+- **Hamming Loss:** 0.2261
+- **Macro-F1:** 0.5379
+- **Weighted F1:** 0.6547
+
+**MLP** performed very similarly:
+
+- **Micro-F1:** 0.6757
+- Slightly lower Macro-F1 and Weighted F1 than Random Forest
+- Faster and more computationally efficient
+
+**KNN** performed noticeably worse:
+
+- **Micro-F1:** 0.6332
+- **Exact Match Accuracy:** 30.30%
+- **Hamming Loss:** 0.2565
+
+These results suggest that acoustic structure is strongly informative for perceived musical emotion, especially when modeled with nonlinear classifiers.
+
+### Hyperparameter Tuning Results
+
+Tuning experiments showed two clear patterns:
+
+- Random Forest generally produced the strongest predictive performance
+- Random Search often matched Grid Search performance with much lower runtime
+- MLP was much faster to train, making it useful for rapid experimentation
+- Larger Spark cluster sizes reduced runtime substantially without changing performance much
+
+Overall, tuning improved efficiency and helped clarify tradeoffs between model quality and compute cost.
+
+### Lyric-Based Transformer Results
+
+The lyric-based classifier achieved an overall accuracy of approximately:
+
+- **Accuracy ≈ 18%**
+
+This is much lower than the audio-based models, but the result is still meaningful. It suggests that lyrics and listener-perceived emotion are not the same thing.
+
+Key findings:
+
+- Anger and joy were easier to detect from lyrics
+- Fear, surprise, and disgust were much harder to identify
+- Predictions often clustered around a small set of dominant emotions
+- Lyrics capture narrative or semantic emotion, but not always the full affective experience of listening
+
+### LLM Feature-Only Results
+
+The LLM experiment showed that a language model can infer some emotional patterns from structured acoustic features alone, but performance varied by category.
+
+Main patterns:
+
+- Joy was the easiest emotion to detect
+- Sadness and fear showed moderate performance
+- Anger and surprise were harder
+- Disgust was rarely predicted correctly
+
+Common error types included:
+
+- Label omission in multilabel cases
+- Overreliance on broad signals like high energy or high valence
+- Difficulty with emotionally mixed or ambiguous songs
+
+### Overall Interpretation
+
+Across modalities, the results suggest:
+
+- Audio features are the strongest standalone signal for listener-perceived emotion
+- Lyrics capture emotional language, but often reflect a different layer of meaning
+- LLMs can reason from structured features, but their predictions are less reliable than supervised models
+- Weak supervision from human tags remains central for building scalable emotion datasets
+
+---
+
+## Key Takeaways
+
+- Emotion in music is fundamentally multimodal
+- Acoustic features, lyrics, and human tags capture different emotional layers
+- Weak supervision enables scalable label construction, but the **0.8 threshold** introduces a precision–coverage tradeoff
+- Lyrics alone do not fully capture how music feels to listeners
+- Future work should move toward multimodal neural models that combine:
+  - acoustic features
+  - lyric embeddings
+  - listener tag distributions
+
+---
+
+## Setup Notes
+
+Some parts of this repository require external credentials or downloaded datasets.
+
+### Spotify Credentials
+
+The file `spotify_secret.py` is used for Spotify API access.  
+You will need to create your own credentials and configure this locally.
+
+### Requirements
+
+Install dependencies from the requirements file inside `Initial_running/`:
+
+```bash
+pip install -r Initial_running/requirement.txt
+```
+## Raw Datasets
+
+*(See `Datasets/rawdataset.txt` for more detailed descriptions.)*
 
 Due to size restrictions, raw data files are **not directly uploaded to this repository**. However, all source datasets are publicly available and can be downloaded from the following locations:
 
-- 🎧 **Spotify Audio Features (8M Tracks)**  
+- **Spotify Audio Features (8M Tracks)**  
   [Kaggle: 8M Spotify Tracks – Genre & Audio Features](https://www.kaggle.com/datasets/maltegrosse/8-m-spotify-tracks-genre-audio-features)
 
-- 🏷️ **Last.fm User Tags**  
+- **Last.fm User Tags**  
   [Last.fm Tag Annotations (Million Song Dataset)](http://millionsongdataset.com/lastfm/)
 
-- 🧠 **Tags Database (SQLite Format)**  
+- **Tags Database (SQLite Format)**  
   [lastfm_tags.db (LabROSA)](http://labrosa.ee.columbia.edu/~dpwe/tmp/lastfm_tags.db)
 
-- 🗂️ **Track Metadata (Subset)**  
+- **Track Metadata (Subset)**  
   [lastfm_subset.zip (Million Song Dataset)](http://millionsongdataset.com/sites/default/files/lastfm/lastfm_subset.zip)
 
 All code is provided in this repository. Raw data must be downloaded from public sources (see above).
 
 ---
-## Overleaf Repository
-For the LaTeX paper and presentation, you can access the Overleaf repository here:
-[Overleaf Repository - Encoding Emotion in Music](https://github.com/VeraMao/Encoding-Emotion-in-Music_Overleaf)
 
-The Overleaf repository contains:
-```text
-├── Archived/ # Archived files from the Overleaf project
-├── Graphics/ # Figures used in the paper
-└── Perspective/ # LaTeX files for the Perspective paper
-```text
+## License
 
----
-
-**Key Findings:**
-1. **Emotion classification is feasible using only audio features**  
-   Models like Random Forest can effectively classify six emotions (*anger, disgust, fear, joy, sadness, surprise*) from 12 Spotify-derived features. Best micro F1 score reached ~0.68.
-
-2. **Emotional prediction varies across categories**  
-   *Joy* and *sadness* were predicted with high accuracy. *Fear*, *disgust*, and *surprise* were more error-prone, due to low salience and higher semantic ambiguity.
-
-3. **Weakly supervised labels are noisy but scalable**  
-   Labels were generated by applying a DistilRoBERTa classifier to Last.fm tags. This introduces some semantic drift—especially for genre or aesthetic tags—but enables large-scale annotation.
-
-4. **Interpretability highlights fuzzy boundaries**  
-   SHAP analysis shows high-impact features (*valence*, *energy*, *acousticness*) drive predictions. Misclassifications often lacked clear signal, pointing to inherent emotional ambiguity in music.
-
-5. **Ablation studies confirm feature importance**  
-   Removing top-ranked features reduced accuracy by 26%. Removing low-importance features sometimes improved results, confirming that noisy inputs can hurt model robustness.
-
-6. **Emotion co-occurrence increases error rates**  
-   Emotions that often appear alongside others (e.g., *surprise*, *fear*) are more likely to be missed. Top-k thresholding contributes to recall issues for minority emotions.
-
-7. **Cultural and genre biases affect generalizability**  
-   The dataset is biased toward Western, well-tagged music. Models often misinterpret emotions expressed through performance style or instrumentation in underrepresented genres.
-
----
-
-Ciatation:
-To cite this work, please use the following BibTeX entry:
-
-```bibtex
-@unpublished{zhong2025encoding,
-  title={Encoding Emotion in Music via Acoustic Features: A Weakly Supervised Machine Learning Study},
-  author={Jiaming Mao},
-  note={Computational Social Science, University of Chicago},
-  year={2025}
-}
-```
-
----
-
-Reproducing Results:
-To reproduce the results, follow these steps:
-1. Clone the repository:
-   ```bash
-   git clone
-   ```
-2. Install the required libraries:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Set up your Spotify API credentials in `spotify_secret.py`.
-4. Run the data collection scripts in `DataCollection&Pre` to gather Spotify audio features and Last.fm tags.
-5. Preprocess the data using the scripts in `DataCollection&Pre`.
-6. Train the models using the scripts in `ML_Progress`.
-7. Evaluate the models and visualize the results using the scripts in `ML_Progress`.
-8. Explore the results in the `Results` folder.
-9. View the presentation slides in the `Presentation` folder.
-10. Read the paper in the `Paper` folder.
-
----
-## 📜 License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## 📧 Contact
-For any questions or feedback, please contact Jiaming Mao at jmao0220@uchicago.edu
-
-
+---
