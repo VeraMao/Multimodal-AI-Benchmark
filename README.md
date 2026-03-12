@@ -2,7 +2,7 @@
 *A computational social science exploration of how machines infer musical emotion from sound, text, and human-generated tags.*
 
 **Final Project – MACS 37005 AI Agents for Social Science & Society**  
-**Mia Sowder, Vera Mao, and Amrita Pathak**
+**Vera Mao, Mia Sowder and Amrita Pathak**
 
 ---
 
